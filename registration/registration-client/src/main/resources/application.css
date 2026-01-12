@@ -462,21 +462,25 @@
 .loginBorderPaneStyle {
 	-fx-pref-height: 530.0px;
 	-fx-pref-width: 808.0px;
+	-fx-font-family: Noto Sans Myanmar;
 }
 
 .loginLeftPaneStyle {
 	-fx-pref-height: 326.0px;
 	-fx-pref-width: 285.0px;
+	-fx-font-family: Noto Sans Myanmar;
 }
 
 .loginCenterPaneStyle {
 	-fx-pref-height: 500.0px;
 	-fx-pref-width: 500.0px;
+	-fx-font-family: Noto Sans Myanmar;
 }
 
 .loginAnchorPaneStyle {
 	-fx-pref-height: 172.0px;
 	-fx-pref-width: 228.0px;
+	-fx-font-family: Noto Sans Myanmar;
 }
 
 .userNameAnchorPaneStyle {
@@ -485,6 +489,7 @@
 	-fx-background-color: #FFFFFF;
 	-fx-border-width: 1.0 1.0 1.0 1.0;
 	-fx-border-color: #808080;
+	-fx-font-family: Noto Sans Myanmar;
 }
 
 .loginTextStyle {
@@ -569,10 +574,11 @@
 .optionsStyle {
 	-fx-pref-height: 244.0px;
 	-fx-pref-width: 944.0px;
+	-fx-font-family: Noto Sans Myanmar;
 }
 
 .optionsButtonStyle {
-	
+	-fx-font-family: Noto Sans Myanmar;
 }
 
 .reRegAnchorPane {
@@ -738,7 +744,8 @@ Working on new Css by taleev
 .loginSubmitStyle {
 	-fx-pref-height: 35.0px;
 	-fx-pref-width: 312.0px;
-	-fx-background-color: #005baa
+	-fx-background-color: #005baa;
+	-fx-font-family: Noto Sans Myanmar;
 }
 
 .loginOtpValidStyle {
@@ -2765,4 +2772,5 @@ Working on new Css by taleev
     -fx-pref-width: 280.0px;
     -fx-border-width: 0.0 0.0 1.0 0.0;
     -fx-border-color: #005baa;
+
 }
