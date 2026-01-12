@@ -2774,3 +2774,10 @@ Working on new Css by taleev
     -fx-border-color: #005baa;
 
 }
+@font-face {
+    font-family: "MyanmarFallback";
+    src: url("../fonts/NotoSansMyanmar-Regular.ttf");
+}
+.loginBorderPaneStyle {
+    -fx-font-family: "Noto Sans Myanmar";
+}
