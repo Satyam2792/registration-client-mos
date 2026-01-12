@@ -336,7 +336,7 @@ public class LoginController extends BaseController implements Initializable {
 		loginRoot = BaseController.load(getClass().getResource(RegistrationConstants.INITIAL_PAGE));
 		scene = getScene(loginRoot);
 		pageFlow.loadPageFlow();
-		setTextsBasedOnLanguage();
+		// setTextsBasedOnLanguage();
 
 		if (userName != null) {
 			userId.setText(userName);
@@ -1082,5 +1082,6 @@ public class LoginController extends BaseController implements Initializable {
 		// Add your FXML components from the username screen here
 	}
 }
+
 
 
