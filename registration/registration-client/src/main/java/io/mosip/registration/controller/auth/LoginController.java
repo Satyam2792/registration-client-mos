@@ -335,7 +335,6 @@ public class LoginController extends BaseController implements Initializable {
 		fXComponents.setStage(primaryStage);
 		loginRoot = BaseController.load(getClass().getResource(RegistrationConstants.INITIAL_PAGE));
 		scene = getScene(loginRoot);
-		loginRoot.setStyle("-fx-font-family: 'Noto Sans Myanmar';");
 		pageFlow.loadPageFlow();
 		setTextsBasedOnLanguage();
 
@@ -1083,4 +1082,5 @@ public class LoginController extends BaseController implements Initializable {
 		// Add your FXML components from the username screen here
 	}
 }
+
 
