@@ -1886,6 +1886,7 @@ public class GenericController extends BaseController {
 						for (GenericDto city : cityOptions) {
 							if (city.getName().equals(cityCodeDisplay)) {
 								cityCodeValue = city.getCode(); // Retrieves "LaPaTa7"
+								cityCodeValue = cityCodeValue.replaceAll("\\d+$", "");
 								break;
 							}
 						}
@@ -2022,6 +2023,7 @@ public class GenericController extends BaseController {
 					for (GenericDto city : cityOptions) {
 						if (city.getName().equals(cityCodeDisplay)) {
 							cityCodeValue = city.getCode();
+							cityCodeValue = cityCodeValue.replaceAll("\\d+$", "");
 							break;
 						}
 					}
@@ -2102,14 +2104,20 @@ public class GenericController extends BaseController {
 
 		try {
 			loadPreRegSync(responseDTO);
-			if (responseDTO.getSuccessResponseDTO() != null) {
-				getRegistrationDTOFromSession().setPreRegistrationId(prid);
-				getRegistrationDTOFromSession().setAppId(prid);
-				getRegistrationDTOFromSession().setRegistrationId(prid);
+            if (responseDTO.getSuccessResponseDTO() != null) {
+                String currentTabPaneId = getRegistrationDTOFromSession().getRegistrationId();
 
-				TabPane tabPane = (TabPane) anchorPane.lookup(HASH + getRegistrationDTOFromSession().getRegistrationId());
-				if (tabPane != null) tabPane.setId(prid);
-			}
+                getRegistrationDTOFromSession().setPreRegistrationId(prid);
+                getRegistrationDTOFromSession().setAppId(prid);
+                getRegistrationDTOFromSession().setRegistrationId(prid);
+
+                TabPane tabPane = (TabPane) anchorPane.lookup(HASH + currentTabPaneId);
+                if (tabPane != null) {
+                    tabPane.setId(prid);
+                } else {
+                    LOGGER.warn("TabPane not found using id: {} while updating to {}", currentTabPaneId, prid);
+                }
+            }
 		} catch (RegBaseCheckedException exception) {
 			generateAlertLanguageSpecific(RegistrationConstants.ERROR, RegistrationConstants.PRE_REG_TO_GET_PACKET_ERROR);
 		}
@@ -2217,3 +2225,4 @@ public class GenericController extends BaseController {
 		});
 	}
 }
+
