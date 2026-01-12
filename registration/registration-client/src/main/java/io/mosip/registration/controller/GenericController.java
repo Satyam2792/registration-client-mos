@@ -2068,7 +2068,7 @@ public class GenericController extends BaseController {
 	/**
 	 * Handle the response from NRC search
 	 */
-	private void handleNrcSearchResponse(ResponseDTO responseDTO) {
+	private void handleNrcSearchResponse(ResponseDTO responseDTO, String apiPrid) {
 		try {
 			genericScreen.setDisable(false);
 			if (progressIndicator != null) progressIndicator.setVisible(false);
@@ -2082,8 +2082,10 @@ public class GenericController extends BaseController {
 				return;
 			}
 
+			LOGGER.info("Using pre-registration ID (apiPrid): [{}]", apiPrid);
+
 			// If successful, the response should contain the pre-registration data
-			handleFetchResponse(responseDTO, "NRC_SEARCH_RESULT");
+			handleFetchResponse(responseDTO, apiPrid);
 
 		} catch (Exception exception) {
 			LOGGER.error("Error handling NRC search response", exception);
@@ -2146,12 +2148,12 @@ public class GenericController extends BaseController {
 		};
 
 		searchService.setOnSucceeded(event -> {
-			handleNrcSearchResponse(searchService.getValue());
+			handleNrcSearchResponse(searchService.getValue(),cleanNrc);
 		});
 
 		searchService.setOnFailed(event -> {
 			LOGGER.error("NRC search task failed", searchService.getException());
-			handleNrcSearchResponse(null);
+			handleNrcSearchResponse(null,cleanNrc);
 		});
 
 		searchService.start();
@@ -2225,4 +2227,5 @@ public class GenericController extends BaseController {
 		});
 	}
 }
+
 
