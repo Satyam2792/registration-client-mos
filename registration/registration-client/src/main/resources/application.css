@@ -1478,13 +1478,14 @@ Working on new Css by taleev
 	-fx-background-color: #FFFFFF;
 	-fx-border-width: 0.0 0.0 1.0 0.0;
 	-fx-border-color: #005baa;
+	-fx-font-family: Padauk;
 }
 
 .table-view .column-header .label {
 	-fx-alignment: CENTER;
 	-fx-text-fill: #666666;
 	-fx-font: 15.0px;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
     -fx-font-weight: normal;
 }
 
@@ -2795,4 +2796,5 @@ Working on new Css by taleev
 .password-field .prompt-text {
     -fx-font-family: "Padauk";
 }
+
 
