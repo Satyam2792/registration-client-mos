@@ -25,6 +25,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import javafx.scene.text.Font;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -259,6 +260,19 @@ public class BaseController {
 	@Value("${mosip.registration.css.theme:}")
 	private String cssTheme;
 
+	static {
+		try {
+			Font.loadFont(
+					BaseController.class.getResourceAsStream(
+							"/fonts/Padauk.ttf"
+					),
+					12
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
 	static {
 		ALL_BIO_ATTRIBUTES = new ArrayList<String>();
 		ALL_BIO_ATTRIBUTES.addAll(RegistrationConstants.leftHandUiAttributes);
@@ -1797,3 +1811,4 @@ public class BaseController {
 		return false;
 	}
 }
+
