@@ -1727,7 +1727,7 @@ Working on new Css by taleev
 	-fx-border-radius: 3.0, 3.0, 3.0, 3.0;
 	-fx-background-color: #005baa;
 	-fx-text-fill: #FFFFFF;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .approveButton:hover {
@@ -1751,7 +1751,7 @@ Working on new Css by taleev
 	-fx-border-radius: 3.0, 3.0, 3.0, 3.0;
 	-fx-background-color: #FFFFFF;
 	-fx-border-color: #005baa;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .rejectButton:hover {
@@ -1783,6 +1783,7 @@ Working on new Css by taleev
 .authenticationStyle {
 	-fx-pref-height: 39.0px;
 	-fx-pref-width: 269.0px;
+	-fx-font-family: Padauk;
 }
 
 .authenticationStyle:focused {
@@ -2661,12 +2662,13 @@ Working on new Css by taleev
 
 .tab-pane .tab:selected {
     -fx-background-color: white;
+	-fx-font-family: Padauk;
 }
 
 .tab .tab-label {
     -fx-text-fill: #3b3b3b;
     -fx-font-size: 13px;
-	-fx-font-family: "Noto Sans Myanmar";
+	-fx-font-family: Padauk;
 }
 
 .tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-label {
@@ -2676,7 +2678,7 @@ Working on new Css by taleev
 
 .tab:selected .tab-label {
     -fx-text-fill: #0B6A82;
-	-fx-font-family: "Noto Sans Myanmar";
+	-fx-font-family: Padauk;
 }
 
 .tab-pane:top *.tab-header-area {
@@ -2793,3 +2795,4 @@ Working on new Css by taleev
 .password-field .prompt-text {
     -fx-font-family: "Padauk";
 }
+
