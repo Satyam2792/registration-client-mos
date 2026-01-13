@@ -2775,9 +2775,27 @@ Working on new Css by taleev
 
 }
 @font-face {
-    font-family: "MyanmarFallback";
-    src: url("../fonts/NotoSansMyanmar-Regular.ttf");
+    font-family: "Padauk";
+    src: url("../fonts/Padauk.ttf");
 }
 .loginBorderPaneStyle {
-    -fx-font-family: "Noto Sans Myanmar";
+    -fx-font-family: "{Padauk}";
 }
+.root {
+    -fx-font-family: "Padauk";
+}
+
+.label,
+.button,
+.text-field,
+.combo-box,
+.password-field {
+    -fx-font-family: "Padauk";
+}
+
+.text-field .prompt-text,
+.password-field .prompt-text {
+    -fx-font-family: "Padauk";
+}
+
+
