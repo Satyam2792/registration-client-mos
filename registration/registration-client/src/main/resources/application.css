@@ -421,6 +421,7 @@
 	-fx-border-width: 0.0;
 	-fx-text-fill: #666666;
 	-fx-font-size: 14px;
+	-fx-font-family: Padauk;
 }
 
 .selectLanguageFooterText {
@@ -438,14 +439,14 @@
 
 .languageCheckBox {
 	-fx-font-size: 14px;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .languageCheckBox .box {
 	-fx-background-color: #ffffff;
 	-fx-border-color: #005baa;
 	-fx-border-radius: 5px;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .languageCheckBox:selected .mark {
@@ -492,16 +493,9 @@
 	-fx-font-family: Noto Sans Myanmar;
 }
 
-.loginTextStyle {
-	-fx-pref-height: 39.0px;
-	-fx-pref-width: 221.0px;
-	-fx-prompt-text-fill: derive(-fx-control-inner-background,-30%);
-	-fx-font-family: Noto Sans Myanmar;
-}
-
 .loginTextStyle:focused {
     -fx-prompt-text-fill: derive(-fx-control-inner-background,-30%);
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .hyperLinkStyle {
@@ -509,7 +503,7 @@
 	-fx-underline: false;
 	-fx-border-color: transparent;
 	-fx-font-size: 10.0px;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .loginSubmitStyle {
@@ -522,7 +516,7 @@
 	-fx-font-size: 10.0px;
 	-fx-effect: dropshadow(three-pass-box, rgba(0.0, 0.0, 0.0, 0.6), 5.0,
 		0.0, 0.0, 1.0);
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .loginSubmitStyle1 {
@@ -535,35 +529,35 @@
 	-fx-font-size: 10.0px;
 	-fx-effect: dropshadow(three-pass-box, rgba(0.0, 0.0, 0.0, 0.6), 5.0,
 		0.0, 0.0, 1.0);
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .loginSubmitStyle:hover {
 	-fx-background-color: #004887;
 	-fx-border-color: #004887;
 	-fx-text-fill: #FFFFFF;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .loginSubmitStyle:pressed {
 	-fx-background-color: #004887;
 	-fx-border-color: #004887;
 	-fx-text-fill: #FFFFFF;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .loginSubmitStyle1:hover {
 	-fx-background-color: #004887;
 	-fx-border-color: #004887;
 	-fx-text-fill: #FFFFFF;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .loginSubmitStyle1:pressed {
 	-fx-background-color: #004887;
 	-fx-border-color: #004887;
 	-fx-text-fill: #FFFFFF;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .loginOtpValidStyle {
@@ -691,6 +685,7 @@ Working on new Css by taleev
 	-fx-border-color: #005baa;
 	-fx-effect: dropshadow(three-pass-box, rgba(0.0, 0.0, 0.0, 0.3), 5.0,
 		0.0, 0.0, 1.0);
+	-fx-font-family: Padauk;
 }
 
 .preregFetchBtnStyle {
@@ -738,14 +733,14 @@ Working on new Css by taleev
 
 .higlightedLoginLable {
 	-fx-font-size: 30.0px;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .loginSubmitStyle {
 	-fx-pref-height: 35.0px;
 	-fx-pref-width: 312.0px;
 	-fx-background-color: #005baa;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 }
 
 .loginOtpValidStyle {
@@ -1883,6 +1878,7 @@ Working on new Css by taleev
 
 .headerDetails {
 	-fx-background-color: #175768;
+	-fx-font-family: Padauk;
 }
 
 .registrationOfficerIdPane {
@@ -1912,7 +1908,7 @@ Working on new Css by taleev
 
 .headerDetails .label {
 	-fx-text-fill: white;
-	-fx-font-family: Noto Sans Myanmar;
+	-fx-font-family: Padauk;
 	-fx-font-size: 14.0px;
 }
 
@@ -2797,5 +2793,3 @@ Working on new Css by taleev
 .password-field .prompt-text {
     -fx-font-family: "Padauk";
 }
-
-
