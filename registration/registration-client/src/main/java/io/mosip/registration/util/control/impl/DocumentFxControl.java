@@ -1,9 +1,27 @@
 package io.mosip.registration.util.control.impl;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
-
+import java.awt.Color;
+import java.awt.Graphics2D;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
+import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.embed.swing.SwingFXUtils;
 
 import io.mosip.registration.controller.ClientApplication;
 import io.mosip.registration.dto.mastersync.GenericDto;
@@ -45,7 +63,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 import javafx.util.StringConverter;
+
+import javax.imageio.ImageIO;
 
 public class DocumentFxControl extends FxControl {
 
@@ -65,6 +87,10 @@ public class DocumentFxControl extends FxControl {
 	private String PREVIEW_ICON = "previewIcon";
 
 	private String CLEAR_ID = "clear";
+
+	// UI-only cache for previews (key = fieldId)
+	private final Map<String, BufferedImage> previewImageCache = new HashMap<>();
+
 
 	public DocumentFxControl() {
 		org.springframework.context.ApplicationContext applicationContext = ClientApplication.getApplicationContext();
@@ -93,9 +119,22 @@ public class DocumentFxControl extends FxControl {
 		GridPane tickMarkGridPane = getImageGridPane(PREVIEW_ICON, RegistrationConstants.DOC_PREVIEW_ICON);
 		tickMarkGridPane.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 
-			scanDocument(true);
+			DocumentDto document = getRegistrationDTo()
+					.getDocuments().get(uiFieldDTO.getId());
 
+			if (document == null) return;
+
+			BufferedImage preview = previewImageCache.get(uiFieldDTO.getId());
+
+			if (preview != null) {
+				showImagePreview(preview);
+			} else {
+				documentScanController.generateAlert(
+						RegistrationConstants.ERROR,
+						"Preview not available for this document");
+			}
 		});
+
 		// TICK-MARK
 		hBox.getChildren().add(tickMarkGridPane);
 
@@ -109,12 +148,15 @@ public class DocumentFxControl extends FxControl {
 		});
 		hBox.getChildren().add(clearGridPane);
 
-		// SCAN-BUTTON
-		hBox.getChildren().add(createScanButton(uiFieldDTO));
+		// BROWSE-BUTTON
+		hBox.getChildren().add(createBrowseButton(uiFieldDTO));
+		// SCAN-BUTTON (disabled – browse only)
+//		hBox.getChildren().add(createScanButton(uiFieldDTO));
 
 		this.node = hBox;
-
-		setListener(getField(uiFieldDTO.getId() + RegistrationConstants.BUTTON));
+// Scan listener disabled (browse only)
+//		setListener(getField(uiFieldDTO.getId() + RegistrationConstants.BUTTON));
+		setBrowseListener(getField(uiFieldDTO.getId() + "_browse"));
 
 		changeNodeOrientation(hBox, getRegistrationDTo().getSelectedLanguagesByApplicant().get(0));
 
@@ -134,17 +176,18 @@ public class DocumentFxControl extends FxControl {
 		}
 		auditFactory.audit(auditEvent, Components.REG_DOCUMENTS, SessionContext.userId(),
 				AuditReferenceIdTypes.USER_ID.getReferenceTypeId());
-		
+
 		getRegistrationDTo().removeDocument(this.uiFieldDTO.getId());
-		
+
 		TextField textField = (TextField) getField(
 				uiFieldDTO.getId() + RegistrationConstants.DOC_TEXT_FIELD);
 		textField.setText(RegistrationConstants.EMPTY);
-		
+
 		getField(uiFieldDTO.getId() + PREVIEW_ICON).setVisible(false);
 		getField(uiFieldDTO.getId() + CLEAR_ID).setVisible(false);
 		getField(uiFieldDTO.getId() + PREVIEW_ICON).setManaged(true);
 		getField(uiFieldDTO.getId() + CLEAR_ID).setManaged(true);
+		previewImageCache.remove(uiFieldDTO.getId());
 	}
 
 	private GridPane getImageGridPane(String id, String imagePath) {
@@ -170,6 +213,28 @@ public class DocumentFxControl extends FxControl {
 		return gridPane;
 	}
 
+	private GridPane createBrowseButton(UiFieldDTO uiFieldDTO) {
+
+
+		Button browseButton = new Button();
+		browseButton.setText("Browse");
+		browseButton.setId(uiFieldDTO.getId() + "_browse");
+		browseButton.getStyleClass().add(RegistrationConstants.DOCUMENT_CONTENT_BUTTON);
+
+
+		GridPane browseButtonGridPane = new GridPane();
+		RowConstraints rowConstraint1 = new RowConstraints();
+		RowConstraints rowConstraint2 = new RowConstraints();
+		rowConstraint1.setPercentHeight(35);
+		rowConstraint2.setPercentHeight(65);
+		browseButtonGridPane.getRowConstraints().addAll(rowConstraint1, rowConstraint2);
+		browseButtonGridPane.setPrefWidth(80);
+		browseButtonGridPane.add(browseButton, 0, 1);
+
+
+		return browseButtonGridPane;
+	}
+
 	private GridPane createScanButton(UiFieldDTO uiFieldDTO) {
 
 		Button scanButton = new Button();
@@ -193,7 +258,8 @@ public class DocumentFxControl extends FxControl {
 	}
 
 	private void scanDocument(boolean isPreviewOnly) {
-
+// SCAN DISABLED – browse-only mode
+    /*
 		if(!isValid()) {
 			documentScanController.generateAlert(RegistrationConstants.ERROR, RegistrationUIConstants.getMessageLanguageSpecific(RegistrationUIConstants.PLEASE_SELECT)
 					+ RegistrationConstants.SPACE + uiFieldDTO.getSubType() + " " + RegistrationUIConstants.getMessageLanguageSpecific(RegistrationUIConstants.DOCUMENT));
@@ -201,7 +267,133 @@ public class DocumentFxControl extends FxControl {
 		}
 
 		documentScanController.scanDocument(uiFieldDTO.getId(), this,	isPreviewOnly);
+     */
 	}
+
+	private void browseDocument() {
+		if(!isValid()) {
+			documentScanController.generateAlert(RegistrationConstants.ERROR, RegistrationUIConstants.getMessageLanguageSpecific(RegistrationUIConstants.PLEASE_SELECT)
+					+ RegistrationConstants.SPACE + uiFieldDTO.getSubType() + " " + RegistrationUIConstants.getMessageLanguageSpecific(RegistrationUIConstants.DOCUMENT));
+			return;
+		}
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select Document File");
+		fileChooser.getExtensionFilters().addAll(
+				new FileChooser.ExtensionFilter("PDF Files", "*.pdf"),
+				new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.jpeg", "*.png", "*.bmp"),
+				new FileChooser.ExtensionFilter("All Files", "*.*")
+		);
+
+
+		// Get the window from the current node
+		Window window = getField(uiFieldDTO.getId()).getScene().getWindow();
+		File selectedFile = fileChooser.showOpenDialog(window);
+
+
+		if (selectedFile != null) {
+			processSelectedFile(selectedFile);
+		}
+	}
+
+
+	private void processSelectedFile(File file) {
+		try {
+			long fileSizeInMB = file.length() / (1024 * 1024);
+			int maxDocSize = Integer.parseInt(
+					documentScanController.getValueFromApplicationContext(
+							RegistrationConstants.DOC_SIZE));
+
+			if (fileSizeInMB > maxDocSize) {
+				documentScanController.generateAlert(
+						RegistrationConstants.ERROR,
+						RegistrationUIConstants.getMessageLanguageSpecific(
+										RegistrationUIConstants.SCAN_DOC_SIZE)
+								.replace("1", Integer.toString(maxDocSize)));
+				return;
+			}
+
+			String fileName = file.getName().toLowerCase();
+			byte[] fileBytes = Files.readAllBytes(file.toPath());
+
+			if (fileName.endsWith(".pdf")) {
+				setData(fileBytes); // route through common pipeline
+				return;
+			}
+
+
+			// ✅ CASE 2: Image → convert
+			BufferedImage image = ImageIO.read(file);
+			if (image == null) {
+				throw new IOException("Unsupported image format");
+			}
+
+			List<BufferedImage> images = new ArrayList<>();
+			images.add(convertToRGB(image));
+
+			setData(images);
+
+		} catch (Exception e) {
+			LOGGER.error("Error processing uploaded document", e);
+			documentScanController.generateAlert(
+					RegistrationConstants.ERROR,
+					"Unable to process the selected file. Please upload a valid PDF or image.");
+		}
+	}
+
+	private BufferedImage convertToRGB(BufferedImage src) {
+		if (src.getType() == BufferedImage.TYPE_INT_RGB) {
+			return src;
+		}
+
+		BufferedImage rgbImage = new BufferedImage(
+				src.getWidth(),
+				src.getHeight(),
+				BufferedImage.TYPE_INT_RGB
+		);
+
+		Graphics2D g = rgbImage.createGraphics();
+		g.setColor(Color.WHITE); // important for PNG transparency
+		g.fillRect(0, 0, src.getWidth(), src.getHeight());
+		g.drawImage(src, 0, 0, null);
+		g.dispose();
+
+		return rgbImage;
+	}
+
+	private BufferedImage renderPdfFirstPage(byte[] pdfBytes) throws IOException {
+		try (PDDocument document = PDDocument.load(pdfBytes)) {
+			PDFRenderer renderer = new PDFRenderer(document);
+			return renderer.renderImageWithDPI(0, 150);
+		}
+	}
+
+	private void showImagePreview(BufferedImage bufferedImage) {
+
+		Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
+		ImageView imageView = new ImageView(fxImage);
+		imageView.setPreserveRatio(true);
+		imageView.setFitWidth(700);
+
+		ScrollPane scrollPane = new ScrollPane(imageView);
+		scrollPane.setFitToWidth(true);
+		scrollPane.setFitToHeight(true);
+		scrollPane.setPannable(true);
+
+		Button closeButton = new Button("Close");
+		closeButton.setOnAction(e -> ((Stage) closeButton.getScene().getWindow()).close());
+
+		VBox root = new VBox(10, scrollPane, closeButton);
+		root.setStyle("-fx-padding: 10;");
+		root.setPrefSize(750, 600);
+
+		Stage stage = new Stage();
+		stage.setTitle("Document Preview");
+		stage.setScene(new Scene(root));
+		stage.setResizable(true);
+		stage.show();
+	}
+
+
 
 	private VBox createDocRef(String id) {
 		/** Container holds title, fields and validation message elements */
@@ -340,6 +532,52 @@ public class DocumentFxControl extends FxControl {
 
 		try {
 
+			// NEW: Handle uploaded PDF
+			// =======================
+			if (data instanceof byte[]) {
+
+				byte[] pdfBytes = (byte[]) data;
+
+				int maxDocSize = Integer.parseInt(
+						documentScanController.getValueFromApplicationContext(
+								RegistrationConstants.DOC_SIZE));
+
+				if ((pdfBytes.length / (1024 * 1024)) >= maxDocSize) {
+					documentScanController.generateAlert(
+							RegistrationConstants.ERROR,
+							RegistrationUIConstants.getMessageLanguageSpecific(
+											RegistrationUIConstants.SCAN_DOC_SIZE)
+									.replace("1", Integer.toString(maxDocSize)));
+					return;
+				}
+
+				ComboBox<DocumentCategoryDto> comboBox =
+						(ComboBox<DocumentCategoryDto>) getField(uiFieldDTO.getId());
+
+				DocumentDto documentDto = new DocumentDto();
+                documentDto.setFormat("pdf");
+                documentDto.setCategory(uiFieldDTO.getSubType());
+				documentDto.setOwner(RegistrationConstants.APPLICANT);
+				documentDto.setType(comboBox.getValue().getCode());
+				documentDto.setValue(
+						uiFieldDTO.getSubType() + "_" + comboBox.getValue().getCode());
+                BufferedImage previewImage = renderPdfFirstPage(pdfBytes);
+                previewImageCache.put(uiFieldDTO.getId(), previewImage);
+
+
+                documentDto.setDocument(pdfBytes);
+
+				TextField textField = (TextField) getField(
+						uiFieldDTO.getId() + RegistrationConstants.DOC_TEXT_FIELD);
+				documentDto.setRefNumber(textField.getText());
+
+				getRegistrationDTo().addDocument(uiFieldDTO.getId(), documentDto);
+
+				getField(uiFieldDTO.getId() + PREVIEW_ICON).setVisible(true);
+				getField(uiFieldDTO.getId() + CLEAR_ID).setVisible(true);
+				return;
+			}
+
 			if (data == null) {
 				getField(uiFieldDTO.getId() + PREVIEW_ICON).setVisible(false);
 				getField(uiFieldDTO.getId() + CLEAR_ID).setVisible(false);
@@ -386,6 +624,10 @@ public class DocumentFxControl extends FxControl {
 						.concat(comboBox.getValue().getCode()));
 
 				documentDto.setDocument(byteArray);
+				// Store preview for image
+				BufferedImage previewImage = bufferedImages.get(0);
+				previewImageCache.put(uiFieldDTO.getId(), previewImage);
+
 				TextField textField = (TextField) getField(
 						uiFieldDTO.getId() + RegistrationConstants.DOC_TEXT_FIELD);
 				documentDto.setRefNumber(textField.getText());
@@ -470,6 +712,16 @@ public class DocumentFxControl extends FxControl {
 			} else {
 				scanButton.setGraphic(new ImageView(new Image(
 						this.getClass().getResourceAsStream(RegistrationConstants.SCAN), 12, 12, true, true)));
+			}
+		});
+	}
+
+	public void setBrowseListener(Node node) {
+		Button browseButton = (Button) node;
+		browseButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				browseDocument();
 			}
 		});
 	}
