@@ -283,7 +283,17 @@ public class PacketHandlerController extends BaseController implements Initializ
 
 		try {
 			setImagesOnHover();
-
+			// Hide Center Remap Sync
+			centerRemapPane.setVisible(false);
+			centerRemapPane.setManaged(false);
+			// Hide Check Updates
+			checkUpdatesPane.setVisible(false);
+			checkUpdatesPane.setManaged(false);
+			// Hide EOD Approval (Notification for Pre-Registration)
+			reRegistrationPane.setVisible(false);
+			reRegistrationPane.setManaged(false);
+			hideGridPaneRow(eodProcessGridPane, 1);
+			
 			setImage(syncDataImageView, RegistrationConstants.SYNC_IMG);	
 			setImage(downloadPreRegDataImageView, RegistrationConstants.DWLD_PRE_REG_DATA_IMG);
 			setImage(uploadPacketImageView, RegistrationConstants.UPDATE_OPERATOR_BIOMETRICS_IMG);		
@@ -328,6 +338,15 @@ public class PacketHandlerController extends BaseController implements Initializ
 		} catch (RegBaseCheckedException regBaseCheckedException) {
 			LOGGER.error("REGISTRATION - UI- Home Page Loading", APPLICATION_NAME, APPLICATION_ID,
 					regBaseCheckedException.getMessage() + ExceptionUtils.getStackTrace(regBaseCheckedException));
+		}
+	}
+	
+	private void hideGridPaneRow(GridPane grid, int rowIndex) {
+		if (grid.getRowConstraints().size() > rowIndex) {
+			RowConstraints constraints = grid.getRowConstraints().get(rowIndex);
+			constraints.setMinHeight(0);
+			constraints.setPrefHeight(0);
+			constraints.setMaxHeight(0);
 		}
 	}
 
@@ -792,10 +811,13 @@ public class PacketHandlerController extends BaseController implements Initializ
 		try {
 			double version = identitySchemaDao.getLatestEffectiveSchemaVersion();
 			List<ProcessSpec> processSpecs = identitySchemaDao.getAllActiveProcessSpecs(version);
-			addParentRowConstraints(processSpecs == null ? 0 : processSpecs.size());
+			// addParentRowConstraints(processSpecs == null ? 0 : processSpecs.size());
 			AtomicInteger i = new AtomicInteger();
 			Objects.requireNonNull(processSpecs).forEach(processSpec -> {
 				try {
+					if ("LOST".equals(processSpec.getId()) || "BIOMETRIC_CORRECTION".equals(processSpec.getId())) {
+						return; // Skip these processes
+					}
 					FlowType flowType = FlowType.valueOf(processSpec.getFlow());
 					if(flowType == null) {
 						LOGGER.error("Invalid registration flow type {}", processSpec.getFlow());
@@ -902,3 +924,4 @@ public class PacketHandlerController extends BaseController implements Initializ
 		return ( baseService.getMinLanguagesCount() >= 1 && baseService.getMaxLanguagesCount() > 1 );
 	}
 }
+
