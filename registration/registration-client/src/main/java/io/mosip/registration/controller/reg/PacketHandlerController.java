@@ -912,8 +912,30 @@ public class PacketHandlerController extends BaseController implements Initializ
 					languageSelectionController.init();
 				}
 				else {
-					languageSelectionController.submitLanguagesAndProceed(baseService.getMandatoryLanguages());
-				}
+					List<String> selectedLangs = new ArrayList<>();
+
+                    // If mandatory languages exist → use them
+                    if (!baseService.getMandatoryLanguages().isEmpty()) {
+                        selectedLangs.addAll(baseService.getMandatoryLanguages());
+                    }
+                    // If mandatory empty → fallback to optional languages
+                    else if (!baseService.getOptionalLanguages().isEmpty()) {
+                        String platformLang = ApplicationContext.applicationLanguage();
+
+                        if (baseService.getOptionalLanguages().contains(platformLang)) {
+                            selectedLangs.add(platformLang);
+                        } else {
+                            selectedLangs.add(baseService.getOptionalLanguages().get(0));
+                        }
+                    }
+
+                    // Safety check (never allow empty language list)
+                    if (selectedLangs.isEmpty()) {
+                        throw new PreConditionCheckException(RegistrationConstants.ERROR,"No language configured for registration");
+                    }
+
+                    languageSelectionController.submitLanguagesAndProceed(selectedLangs);
+                }
 			} catch (PreConditionCheckException e) {
 				generateAlert(RegistrationConstants.ERROR, e.getErrorCode());
 			}
@@ -921,7 +943,17 @@ public class PacketHandlerController extends BaseController implements Initializ
 	}
 
 	private boolean isLanguageSelectionRequired() throws PreConditionCheckException {
-		return ( baseService.getMinLanguagesCount() >= 1 && baseService.getMaxLanguagesCount() > 1 );
+			List<String> mandatory = baseService.getMandatoryLanguages();
+            List<String> optional = baseService.getOptionalLanguages();
+
+            // If mandatory languages exist → popup only when > 1 mandatory
+            if (!mandatory.isEmpty()) {
+                return mandatory.size() > 1;
+            }
+
+            // If mandatory empty → auto-pick optional → NO popup
+            return false;
 	}
 }
+
 
