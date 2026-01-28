@@ -47,7 +47,7 @@ ENV LANG=my_MM.UTF-8
 ENV LC_ALL=my_MM.UTF-8
 
 # ================================
-# Install Pyidaungsu Myanmar Font (COPY from fonts folder)
+# Install Pyidaungsu Myanmar Font
 # ================================
 RUN mkdir -p /usr/share/fonts/myanmar
 COPY fonts/Pyidaungsu.ttf /usr/share/fonts/myanmar/Pyidaungsu.ttf
