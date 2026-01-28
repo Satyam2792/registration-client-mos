@@ -262,12 +262,17 @@ public class BaseController {
 
 	static {
 		try {
-			Font.loadFont(
-					BaseController.class.getResourceAsStream(
-							"/fonts/Padauk.ttf"
-					),
-					12
-			);
+			if (BaseController.class.getResourceAsStream("/fonts/Pyidaungsu.ttf") == null) {
+				System.err.println(">>>> FONT LOAD ERROR: Could not find /fonts/Pyidaungsu.ttf in resources.");
+			} else {
+				Font font = Font.loadFont(
+						BaseController.class.getResourceAsStream("/fonts/Pyidaungsu.ttf"),
+						12
+				);
+				if (font != null) {
+					System.out.println(">>>> FONT LOADED SUCCESSFULLY. Family Name: " + font.getFamily());
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1811,4 +1816,5 @@ public class BaseController {
 		return false;
 	}
 }
+
 
