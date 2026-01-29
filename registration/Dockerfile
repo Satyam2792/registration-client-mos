@@ -77,3 +77,4 @@ RUN chmod a+x configure.sh \
 # RUN fc-cache -f -v
 
 ENTRYPOINT ["./configure.sh" ]
+
