@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -124,6 +126,13 @@ public class GenericController extends BaseController {
 	private Button nrcFetchBtn;
 
 	private ProgressIndicator progressIndicator;
+	
+	private TextField registrationNumberTextField;
+
+	private ProcessSpecDto processSpecDto;
+	
+	@Autowired
+	private QrCodePopUpViewController qrCodePopUpViewController;
 
 	@Autowired
 	private AuthenticationController authenticationController;
@@ -228,6 +237,19 @@ public class GenericController extends BaseController {
 //		hBox.getChildren().add(textField);
 		textField.setPrefWidth(200);
 		preRegHBox.getChildren().add(textField);
+		this.registrationNumberTextField = textField;
+
+		Button scanQRbutton = new Button();
+		scanQRbutton.setId("scanQRBtn");
+		scanQRbutton.setGraphic(new ImageView(
+				new Image(this.getClass().getResourceAsStream("/images/QRCode.jpg"), 25, 25, true, true)));
+		scanQRbutton.getStyleClass().add("demoGraphicPaneContentButton");
+
+		// FIX: Set this to open the QR Scanner, NOT the fetch task
+		scanQRbutton.setOnAction(event -> {
+			executeQRCodeScan();
+		});
+		preRegHBox.getChildren().add(scanQRbutton);
 
 		Button button = new Button();
 		button.setId("fetchBtn");
@@ -236,7 +258,9 @@ public class GenericController extends BaseController {
 				.getString("fetch"));
 
 		button.setOnAction(event -> {
-			executePreRegFetchTask(textField);
+			// FIX: Safety check to prevent NullPointerException
+			String flow = (this.processSpecDto != null) ? this.processSpecDto.getFlow() : "NEW";
+			executePreRegFetchTask(textField, flow);
 		});
 
 //		hBox.getChildren().add(button);
@@ -826,7 +850,7 @@ public class GenericController extends BaseController {
 		RegistrationDTO registrationDTO = getRegistrationDTOFromSession();
 		LOGGER.debug("Populating Dynamic screens for process : {}", registrationDTO.getProcessId());
 		initialize(registrationDTO);
-		ProcessSpecDto processSpecDto = getProcessSpec(registrationDTO.getProcessId(), registrationDTO.getIdSchemaVersion());
+		this.processSpecDto = getProcessSpec(registrationDTO.getProcessId(), registrationDTO.getIdSchemaVersion());
 		getScreens(processSpecDto.getScreens());
 		TabPane tabPane = createTabPane(processSpecDto);
 
@@ -1657,6 +1681,10 @@ public class GenericController extends BaseController {
 		this.previousId = previousId;
 	}
 
+	public TextField getRegistrationNumberTextField() {
+		return registrationNumberTextField;
+	}
+
 	public String getCurrentScreenName() {
 		TabPane tabPane = (TabPane) anchorPane.lookup(HASH + getRegistrationDTOFromSession().getRegistrationId());
 		return tabPane.getSelectionModel().getSelectedItem().getId().replace("_tab", EMPTY);
@@ -2226,6 +2254,40 @@ public class GenericController extends BaseController {
 			setupNrcHierarchyFiltering();
 		});
 	}
+		
+	private void executeQRCodeScan() {
+		genericScreen.setDisable(true);
+		Service<Void> taskService = new Service<Void>() {
+			@Override
+			protected Task<Void> createTask() {
+				return new Task<Void>() {
+					@Override
+					protected Void call() {
+						Platform.runLater(() -> {
+							qrCodePopUpViewController.init("Scan QR Code");
+						});
+						return null;
+					}
+				};
+			}
+		};
+		taskService.start();
+		taskService.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent workerStateEvent) {
+				genericScreen.setDisable(false);
+			}
+		});
+		taskService.setOnFailed(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent t) {
+				LOGGER.debug("QR code scan failed");
+				genericScreen.setDisable(false);
+			}
+		});
+	}
+
 }
+
 
 
