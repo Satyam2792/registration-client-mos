@@ -110,14 +110,19 @@ public class QrCodePopUpViewController extends BaseController implements Initial
             webcam = Webcam.getWebcamByName(name);
             if (webcam != null && !webcam.isOpen()) {
                 webcam.setViewSize(size);
-                webcam.open(); // Explicitly open
+                webcam.open(); // Open camera hardware
+
                 panel = new WebcamPanel(webcam);
                 panel.setPreferredSize(size);
 
-                SwingNode swingNode = new SwingNode();
+                final SwingNode swingNode = new SwingNode();
                 swingNode.setContent(panel);
-                captureWindow.getChildren().clear();
-                captureWindow.getChildren().add(swingNode);
+
+                // FIX: Ensure UI updates happen on the JavaFX Thread
+                Platform.runLater(() -> {
+                    captureWindow.getChildren().clear();
+                    captureWindow.getChildren().add(swingNode);
+                });
 
                 executor.execute(this);
             }
