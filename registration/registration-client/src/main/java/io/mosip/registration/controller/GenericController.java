@@ -367,7 +367,7 @@ public class GenericController extends BaseController {
 		return mainContainer;
 	}
 
-	private void executePreRegFetchTask(TextField textField) {
+	void executePreRegFetchTask(TextField textField, String flow) {
 		genericScreen.setDisable(true);
 		progressIndicator.setVisible(true);
 
@@ -2288,6 +2288,7 @@ public class GenericController extends BaseController {
 	}
 
 }
+
 
 
 
