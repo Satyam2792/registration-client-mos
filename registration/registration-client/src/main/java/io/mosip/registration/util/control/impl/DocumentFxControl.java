@@ -1,6 +1,7 @@
 package io.mosip.registration.util.control.impl;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -118,16 +119,11 @@ public class DocumentFxControl extends FxControl {
 		// CLEAR IMAGE
 		GridPane tickMarkGridPane = getImageGridPane(PREVIEW_ICON, RegistrationConstants.DOC_PREVIEW_ICON);
 		tickMarkGridPane.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+			DocumentDto document = getRegistrationDTo().getDocuments().get(uiFieldDTO.getId());
 
-			DocumentDto document = getRegistrationDTo()
-					.getDocuments().get(uiFieldDTO.getId());
-
-			if (document == null) return;
-
-			BufferedImage preview = previewImageCache.get(uiFieldDTO.getId());
-
-			if (preview != null) {
-				showImagePreview(preview);
+			if (document != null && document.getDocument() != null) {
+				// Pass the full document object to the new preview method
+				showFullDocumentPreview(document);
 			} else {
 				documentScanController.generateAlert(
 						RegistrationConstants.ERROR,
@@ -366,33 +362,98 @@ public class DocumentFxControl extends FxControl {
 			return renderer.renderImageWithDPI(0, 150);
 		}
 	}
+private void showFullDocumentPreview(DocumentDto documentDto) {
+	VBox contentBox = new VBox(10); // Vertical box with 10px spacing between pages
+	contentBox.setStyle("-fx-padding: 10; -fx-background-color: #555555;"); // Dark background for contrast
+	contentBox.setAlignment(javafx.geometry.Pos.TOP_CENTER);
 
-	private void showImagePreview(BufferedImage bufferedImage) {
+	try {
+		byte[] docBytes = documentDto.getDocument();
+		String format = documentDto.getFormat();
 
-		Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
-		ImageView imageView = new ImageView(fxImage);
-		imageView.setPreserveRatio(true);
-		imageView.setFitWidth(700);
+		// Check if format is PDF (handle both "pdf" and "PDF")
+		if ("pdf".equalsIgnoreCase(format) || isPdf(docBytes)) {
+			try (PDDocument document = PDDocument.load(docBytes)) {
+				PDFRenderer renderer = new PDFRenderer(document);
+				int totalPages = document.getNumberOfPages();
 
-		ScrollPane scrollPane = new ScrollPane(imageView);
-		scrollPane.setFitToWidth(true);
-		scrollPane.setFitToHeight(true);
-		scrollPane.setPannable(true);
+				// Loop through ALL pages
+				for (int i = 0; i < totalPages; i++) {
+					// Render page at 150 DPI (Balance between quality and performance)
+					BufferedImage bufferedImage = renderer.renderImageWithDPI(i, 150);
+					Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
 
-		Button closeButton = new Button("Close");
-		closeButton.setOnAction(e -> ((Stage) closeButton.getScene().getWindow()).close());
+					ImageView imageView = new ImageView(fxImage);
+					imageView.setPreserveRatio(true);
+					imageView.setFitWidth(750); // Fit width to stage
 
-		VBox root = new VBox(10, scrollPane, closeButton);
-		root.setStyle("-fx-padding: 10;");
-		root.setPrefSize(750, 600);
+					// Add a slight shadow or border effect for better page visibility
+					StackPane pageContainer = new StackPane(imageView);
+					pageContainer.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 0);");
 
-		Stage stage = new Stage();
-		stage.setTitle("Document Preview");
-		stage.setScene(new Scene(root));
-		stage.setResizable(true);
-		stage.show();
+					contentBox.getChildren().add(pageContainer);
+				}
+			}
+		} else {
+			// It is an Image (JPG, PNG)
+			ByteArrayInputStream bis = new ByteArrayInputStream(docBytes);
+			BufferedImage bufferedImage = ImageIO.read(bis);
+			if (bufferedImage != null) {
+				// Ensure colors are correct (convert to RGB if needed)
+				bufferedImage = convertToRGB(bufferedImage);
+				Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
+
+				ImageView imageView = new ImageView(fxImage);
+				imageView.setPreserveRatio(true);
+				imageView.setFitWidth(750);
+				contentBox.getChildren().add(imageView);
+			}
+		}
+
+	} catch (Exception e) {
+		LOGGER.error("Error generating full preview", e);
+		documentScanController.generateAlert(RegistrationConstants.ERROR, "Failed to load document preview.");
+		return;
 	}
 
+	// Wrap content in a ScrollPane
+	ScrollPane scrollPane = new ScrollPane(contentBox);
+	scrollPane.setFitToWidth(true);
+	scrollPane.setFitToHeight(true);
+	scrollPane.setPannable(true);
+	scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+	scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+	// Close Button
+	Button closeButton = new Button("Close Preview");
+	closeButton.setStyle("-fx-font-size: 14px; -fx-padding: 10px 20px;");
+	closeButton.setOnAction(e -> ((Stage) closeButton.getScene().getWindow()).close());
+
+	HBox buttonContainer = new HBox(closeButton);
+	buttonContainer.setAlignment(javafx.geometry.Pos.CENTER);
+	buttonContainer.setPadding(new javafx.geometry.Insets(10));
+	buttonContainer.setStyle("-fx-background-color: #ffffff;");
+
+	// Root Container
+	javafx.scene.layout.BorderPane root = new javafx.scene.layout.BorderPane();
+	root.setCenter(scrollPane);
+	root.setBottom(buttonContainer);
+
+	Stage stage = new Stage();
+	stage.setTitle("Full Document Preview");
+	stage.setScene(new Scene(root, 800, 700)); // Default size
+	stage.initModality(javafx.stage.Modality.APPLICATION_MODAL); // Block interaction with background
+	stage.show();
+}
+
+	// Helper to double-check if bytes are PDF header if format string is missing/wrong
+	private boolean isPdf(byte[] data) {
+		if (data != null && data.length > 4) {
+			// Check for %PDF header
+			return (data[0] == 0x25 && data[1] == 0x50 && data[2] == 0x44 && data[3] == 0x46);
+		}
+		return false;
+	}
 
 
 	private VBox createDocRef(String id) {
