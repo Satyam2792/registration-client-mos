@@ -242,7 +242,7 @@ public class GenericController extends BaseController {
 		Button scanQRbutton = new Button();
 		scanQRbutton.setId("scanQRBtn");
 		scanQRbutton.setGraphic(new ImageView(
-				new Image(this.getClass().getResourceAsStream("/images/scan.png"), 25, 25, true, true)));
+				new Image(this.getClass().getResourceAsStream("/images/QRCode.jpg"), 25, 25, true, true)));
 		scanQRbutton.getStyleClass().add("demoGraphicPaneContentButton");
 
 		// FIX: Set this to open the QR Scanner, NOT the fetch task
@@ -2288,6 +2288,7 @@ public class GenericController extends BaseController {
 	}
 
 }
+
 
 
 
