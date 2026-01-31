@@ -305,7 +305,15 @@ public class TextFieldFxControl extends FxControl {
 			imagesHBox.getStyleClass().add(RegistrationConstants.ICONS_HBOX);
 			imagesHBox.setPrefWidth(10);
 
-			VirtualKeyboard keyBoard = new VirtualKeyboard(langCode);
+			String keyboardLang = langCode;
+			// Hardcoding keyboard logic for specific fields
+			if (uiFieldDTO.getId().equalsIgnoreCase("fullName")) {
+				keyboardLang = "bur";
+			} else if (uiFieldDTO.getId().equalsIgnoreCase("fullNameEnglish")) {
+				keyboardLang = "eng";
+			}
+
+			VirtualKeyboard keyBoard = new VirtualKeyboard(keyboardLang);			
 			keyBoard.changeControlOfKeyboard(textField);
 			
 			ImageView keyBoardImgView = getKeyBoardImage();
@@ -607,3 +615,4 @@ public class TextFieldFxControl extends FxControl {
 	    });
 	}
 }
+
