@@ -245,6 +245,15 @@ public class GenericController extends BaseController {
 				new Image(this.getClass().getResourceAsStream("/images/QRCode.jpg"), 25, 25, true, true)));
 		scanQRbutton.getStyleClass().add("demoGraphicPaneContentButton");
 
+		Tooltip qrTooltip=new Tooltip();
+		try{
+			String tooltipText=ApplicationContext.getBundle(langCode,RegistrationConstants.MESSAGES).getString("SCAN_QR_TO_FETCH");
+			qrTooltip.setText(tooltipText);
+		} catch (Exception e){
+			qrTooltip.setText("Click here to Scan QR to Fetch Pre-Registration Id Details");
+		}
+		scanQRbutton.setTooltip(qrTooltip);
+
 		// FIX: Set this to open the QR Scanner, NOT the fetch task
 		scanQRbutton.setOnAction(event -> {
 			executeQRCodeScan();
@@ -2288,6 +2297,7 @@ public class GenericController extends BaseController {
 	}
 
 }
+
 
 
 
